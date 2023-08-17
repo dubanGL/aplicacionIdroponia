@@ -1,0 +1,94 @@
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4 justify-content-center">
+        <!-- Cuadro para la Motobomba -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="bg-light rounded p-4">
+                <h6 class="mb-3">Activación de electrobomba</h6>
+                <form id="pump-activation-form">
+                    <div class="mb-3">
+                        <label for="pump-start">Hora de Inicio</label>
+                        <input type="time" id="pump-start" name="pumpStart" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pump-end">Hora de Fin</label>
+                        <input type="time" id="pump-end" name="pumpEnd" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Eviar horario</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Cuadro para la Luz -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="bg-light rounded p-4">
+                <h6 class="mb-3">Activación de Luz</h6>
+                <form id="light-activation-form">
+                    <div class="mb-3">
+                        <label for="light-start">Hora de Inicio</label>
+                        <input type="time" id="light-start" name="lightStart" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="light-end">Hora de Fin</label>
+                        <input type="time" id="light-end" name="lightEnd" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Eviar horario</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+        $('#pump-activation-form').submit(function(event) {
+        event.preventDefault();
+
+        const pumpStartInput = $('#pump-start').val().split(':');
+        const pumpEndInput = $('#pump-end').val().split(':');
+
+        const pumpStart = {
+            hora: parseInt(pumpStartInput[0], 10),
+            minutos: parseInt(pumpStartInput[1], 10),
+        };
+        const pumpEnd = {
+            hora: parseInt(pumpEndInput[0], 10),
+            minutos: parseInt(pumpEndInput[1], 10),
+        };
+        // Crear un objeto con los datos a enviar
+        const data = {
+            type: 'pump-activation',
+            start: pumpStart,
+            end: pumpEnd,
+        };
+
+        console.log(data);
+        // Llamar a la función para enviar los datos al servidor
+        enviarMensajeWebSocket(data);
+        });
+
+        $('#light-activation-form').submit(function(event) {
+
+        event.preventDefault();
+        const lightStartInput = $('#light-start').val().split(':');
+        const lightEndInput = $('#light-end').val().split(':');
+        
+        const lightStart = {
+            hora: parseInt(lightStartInput[0], 10),
+            minutos: parseInt(lightStartInput[1], 10),
+        };
+        const lightEnd = {
+            hora: parseInt(lightEndInput[0], 10),
+            minutos: parseInt(lightEndInput[1], 10),
+        };
+        
+        // Crear un objeto con los datos a enviar
+        const data = {
+            type: 'light-activation',
+            start: lightStart,
+            end: lightEnd,
+        };
+        
+        console.log(data);
+        // Llamar a la función para enviar los datos al servidor
+        enviarMensajeWebSocket(data);
+        });
+</script>

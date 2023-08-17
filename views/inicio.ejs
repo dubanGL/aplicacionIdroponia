@@ -1,0 +1,161 @@
+            <!-- Sale & Revenue Start -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="row g-4 justify-content-center">
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                            <i class="fas fa-tint fa-3x text-primary"></i>
+                            <div class="ms-3">
+                                <p class="mb-2">Humedad</p>
+                                <h6 class="mb-0" id="Humedad"></h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                            <i class="fas fa-wine-glass-alt fa-3x text-primary"></i> <!-- Cambiado a un icono de tanque -->
+                            <div class="ms-3">
+                                <p class="mb-2">Nivel</p>
+                                <h6 class="mb-0" id="nivel"></h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                            <i class="fas fa-thermometer-half fa-3x text-primary"></i>
+                            <div class="ms-3">
+                                <p class="mb-2 ">Temperatura solución</p>
+                                <h6 class="mb-0" id="temperaturaSltion"></h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                            <i class="fas fa-cloud fa-2x text-primary"></i>
+                            <div class="ms-3">
+                                <p class="mb-2 ">Temperatura ambiente</p>
+                                <h6 class="mb-0 " id="temperaturaAmbte"></h6>
+                            </div>
+                        </div>
+                    </div>            
+                </div>
+            </div>
+            
+            <!-- Sale & Revenue End -->
+
+
+            <!-- Sales Chart Start -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="row g-4">
+                    <div class="col-sm-12 col-xl-6">
+                        <div class="bg-light text-center rounded p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h6 class="mb-0">EC solucion nutritiva</h6>
+                            </div>
+                            <canvas id="worldwide-sales"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-xl-6">
+                        <div class="bg-light text-center rounded p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h6 class="mb-0">PH solucion nutritiva</h6>
+                            </div>
+                            <canvas id="salse-revenue"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Sales Chart End -->
+
+            <script>
+                // Variables para los gráficos
+                var myChart1 = null;
+                var myChart2 = null;
+                const storedData = localStorage.getItem("chartData");
+                const chartData = storedData ? JSON.parse(storedData) : {
+                        labels: [],
+                        tdsData: [],
+                        phData: []
+                    };
+                
+                // Crear los gráficos una vez al cargar el documento
+                $(document).ready(function () {
+
+                    var ctx1 = $("#worldwide-sales").get(0).getContext("2d");
+                    myChart1 = new Chart(ctx1, {
+                        type: "line",
+                        data: {
+                            labels: chartData.labels,
+                            datasets: [
+                                {
+                                    label: "EC",
+                                    data: chartData.tdsData ,
+                                    backgroundColor: "rgba(0, 156, 255, .7)"
+                                }
+                            ]
+                        },
+                        // ... (opciones)
+                    });
+            
+                    var ctx2 = $("#salse-revenue").get(0).getContext("2d");
+                    myChart2 = new Chart(ctx2, {
+                        type: "bar",
+                        data: {
+                            labels: chartData.labels,
+                            datasets: [
+                                {
+                                    label: "pH",
+                                    data:chartData.phData,
+                                    backgroundColor: "rgba(0, 156, 255, .5)",
+                                    borderColor: "rgba(0, 156, 255, 1)",
+                                    borderWidth: 2,
+                                    fill: false
+                                }
+                            ]
+                        },
+                        // ... (opciones)
+                    });
+                });
+            
+                // Manejar los datos del WebSocket
+                $(document).on("websocketData", function (event, data) {
+                    const humedadElemento = document.querySelector('#Humedad');
+                    const nielElemento = document.querySelector('#nivel');
+                    const temperaturaAmbte = document.querySelector('#temperaturaAmbte');
+                    const temperaturaSltion = document.querySelector('#temperaturaSltion');
+                    
+                    // Actualizar los valores en el elemento HTML
+                    humedadElemento.textContent = `${data.sensors.humidity} %`;
+                    nielElemento.textContent = `${data.sensors.distance} L`;
+                    temperaturaAmbte.textContent = `${data.sensors.temperature} °C`;
+                    temperaturaSltion.textContent = `${data.sensors.TemperatureSolution} °C`;
+                    
+                    const currentDate = new Date();
+                    chartData.labels.push(currentDate.toLocaleTimeString());
+                    
+                    // Agregar la fecha actual a las etiquetas (labels)
+
+                     // Agregar los nuevos datos de EC y pH a los datasets correspondientes
+                    chartData.tdsData.push(data.sensors.tds);
+                    chartData.phData.push(data.sensors.ph);
+            
+                    // Limitar la cantidad de etiquetas mostradas en los gráficos
+                    // const maxLabels = 10; // Ajusta según el número deseado de etiquetas visibles
+                    // if (chartData.labels.length > maxLabels) {
+                    //     chartData.labels.shift();
+                    //     chartData.tdsData.shift();
+                    //     chartData.phData.shift();
+                    // }
+                        
+                    // Actualizar los gráficos
+                    myChart1.data.labels = chartData.labels.slice();
+                    myChart1.data.datasets[0].data = chartData.tdsData.slice();
+                    myChart1.update();
+
+                    myChart2.data.labels = chartData.labels.slice();
+                    myChart2.data.datasets[0].data = chartData.phData.slice();
+                    myChart2.update();
+
+                   localStorage.setItem("chartData", JSON.stringify(chartData));
+                });
+            </script>
+            

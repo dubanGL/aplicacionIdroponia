@@ -1,0 +1,58 @@
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-md-6 col-xl-6">
+            <div class="h-100 bg-light rounded p-4">
+                <!-- Calendario -->
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h6 class="mb-0">Calendar</h6>
+                    <a href="">Show All</a>
+                </div>
+                <div id="calender"></div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-6 col-xl-6">
+            <div class="h-100 bg-light rounded p-4">
+                <!-- Sección "To Do List" -->
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h6 class="mb-0">To Do List</h6>
+                    <a href="">Show All</a>
+                </div>
+                <div class="d-flex mb-2">
+                    <input id="taskInput" class="form-control bg-transparent" type="text" placeholder="Enter task">
+                    <button id="addTaskBtn" type="button" class="btn btn-primary ms-2">Add</button>
+                </div>
+                <div id="taskList" class="tasks">
+                    <!-- Aquí se agregarán las tareas -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JavaScript para manejar el calendario y la lista de tareas
+    $(document).ready(function() {
+        $('#calender').datetimepicker({
+            inline: true,
+            format: 'L'
+        });
+
+        const taskInput = document.getElementById('taskInput');
+        const addTaskBtn = document.getElementById('addTaskBtn');
+        const taskList = document.getElementById('taskList');
+
+        addTaskBtn.addEventListener('click', () => {
+            const taskText = taskInput.value.trim();
+            if (taskText !== '') {
+                // ... Código para agregar tareas ...
+                taskInput.value = '';
+            }
+        });
+
+        taskList.addEventListener('click', (event) => {
+            if (event.target.matches('button.btn-sm')) {
+                // ... Código para eliminar tareas ...
+            }
+        });
+    });
+</script>
